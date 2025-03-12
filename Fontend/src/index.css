@@ -1,0 +1,15 @@
+/* importing fornts */
+@import url('https://fonts.googleapis.com/css2?family=Sigmar&display=swap');
+
+/* importing tailwind css */
+@import "tailwindcss";
+
+
+/* css class for fornt */
+.sigmar-regular {
+    font-family: "Sigmar", serif;
+    font-weight: 400;
+    font-style: normal;
+  }
+  
+
