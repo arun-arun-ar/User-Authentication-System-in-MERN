@@ -10,8 +10,7 @@ const imageSchema = new mongoose.Schema({
         type: String,
         required: true
     }
-},
-{timestamps: true});
+}, { timestamps: true });
 
 const Image = mongoose.model("Image", imageSchema);
 

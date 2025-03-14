@@ -7,7 +7,7 @@ const Navbar = () => {
 
   const navLinks = [
     { to: "/user-dashboard", text: "Dashboard", icon: <FaHome /> },
-    { to: "/profile", text: "Profile", icon: <FaUser /> },
+    { to: "/user-profile", text: "Profile", icon: <FaUser /> },
     { to: "/about", text: "About", icon: <FaInfoCircle /> },
     { to: "/contact", text: "Contact", icon: <FaEnvelope /> },
   ];

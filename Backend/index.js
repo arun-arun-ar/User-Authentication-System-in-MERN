@@ -34,7 +34,7 @@ app.use(express.json()); // to handle JSON body parsing
 app.use(express.urlencoded({ extended: true })); // to handle form data
 
 // Serve uploaded files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // Calling database
 connectDatabase();
