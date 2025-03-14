@@ -26,7 +26,9 @@ const app = express();
 // Middlewares 
 app.use(cors({
     origin: 'http://localhost:5173', 
-    credentials: true
+    credentials: true,
+    exposedHeaders: ['set-cookie'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
 
 app.use(cookieParser()); // for handling cookies

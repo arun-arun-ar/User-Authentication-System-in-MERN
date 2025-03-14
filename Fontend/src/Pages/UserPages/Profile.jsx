@@ -1,22 +1,93 @@
-import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import Navbar from '../../Components/Navbar'
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import Navbar from '../../Components/Navbar';
 import api from '../../api/api';
 
 const Profile = () => {
   const [user, setUser] = useState(null);
-  const [userImage, setUserImage] = useState(null); // Store user image
+  const [userImage, setUserImage] = useState(null); // Store user image URL
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleImageUpload = async (event) => {
+    try {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setUploadStatus('Please select an image file');
+        return;
+      }
+
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setUploadStatus('File size should be less than 5MB');
+        return;
+      }
+
+      setIsUploading(true);
+      setUploadStatus('Uploading...');
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await api.post('/images/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        withCredentials: true
+      });
+
+      if (response.data.success) {
+        // Construct the full image URL
+        const baseUrl = api.defaults.baseURL.replace('/api', '');
+        const fullImageUrl = `${baseUrl}/public${response.data.image.path}`;
+        setUserImage(fullImageUrl);
+        setUploadStatus('Image uploaded successfully!');
+        
+        // Clear the success message after 3 seconds
+        setTimeout(() => {
+          setUploadStatus('');
+        }, 3000);
+      }
+    } catch (err) {
+      setUploadStatus(err.response?.data?.message || 'Error uploading image');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
+        // Fetch user data
         const response = await api.get('/users/get-current-user', { withCredentials: true });
 
         if (response.data.success) {
           setUser(response.data.user);
-          setUserImage(response.data.user.imageUrl); // Assuming the user object contains imageUrl
+          
+          // Fetch user image using the correct endpoint
+          console.log('Fetching user images...');
+          const imageResponse = await api.get('/images/user-images', {
+            withCredentials: true,
+          });
+          console.log('Image Response:', imageResponse.data);
+
+          if (imageResponse.data.success && imageResponse.data.image.length > 0) {
+            // Get the first image from the array and construct the full URL
+            const imagePath = imageResponse.data.image[0].path;
+            console.log('Image Path:', imagePath);
+            // Remove /api from the base URL since the public directory is served at the root
+            const baseUrl = api.defaults.baseURL.replace('/api', '');
+            const fullImageUrl = `${baseUrl}/public${imagePath}`;
+            console.log('Full Image URL:', fullImageUrl);
+            setUserImage(fullImageUrl);
+          } else {
+            console.log('No images found or request unsuccessful');
+          }
         } else {
           setError("Failed to load profile data");
         }
@@ -89,20 +160,60 @@ const Profile = () => {
               {/* Profile Picture Section */}
               <div className="bg-gray-700 p-6 rounded-xl">
                 <h2 className="text-xl font-semibold mb-4 text-cyan-300">Profile Picture</h2>
-                <div className="flex flex-col items-center">
-                  <img
-                    src="#"
-                    alt=""
-                  />
+                <div className="flex flex-col items-center space-y-4">
+                  {userImage ? (
+                    <>
+                      <img
+                        src={userImage}
+                        alt="Profile"
+                        className="w-40 h-40 rounded-xl object-cover"
+                      />
+                      <p className="text-sm text-gray-400">Profile picture uploaded successfully</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-gray-400">No profile image available</p>
+                      {/* Image Upload Form - Only show when no image exists */}
+                      <div className="w-full max-w-xs">
+                        <label className="block mb-2">
+                          <span className="sr-only">Choose profile photo</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            disabled={isUploading}
+                            className="block w-full text-sm text-gray-400
+                              file:mr-4 file:py-2 file:px-4
+                              file:rounded-full file:border-0
+                              file:text-sm file:font-semibold
+                              file:bg-cyan-600 file:text-white
+                              hover:file:bg-cyan-700
+                              file:cursor-pointer
+                              disabled:opacity-50 disabled:cursor-not-allowed"
+                          />
+                        </label>
+                        {uploadStatus && (
+                          <p className={`mt-2 text-sm ${
+                            uploadStatus.includes('success') 
+                              ? 'text-green-400' 
+                              : uploadStatus === 'Uploading...'
+                              ? 'text-cyan-400'
+                              : 'text-red-400'
+                          }`}>
+                            {uploadStatus}
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </div>
     </>
   );
-}
+};
 
 export default Profile;

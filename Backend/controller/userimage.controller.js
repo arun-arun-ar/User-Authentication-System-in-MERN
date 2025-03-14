@@ -62,10 +62,6 @@ const getUserImage = async (req, res) => {
         const userImage = await Image.find({ user: userId });
         console.log('Found images:', userImage);
 
-        if (!userImage.length) {
-            return res.status(400).json({ success: false, message: "No image found" });
-        }
-
         return res.status(200).json({
             success: true,
             image: userImage.map(image => ({
