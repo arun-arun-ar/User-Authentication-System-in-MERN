@@ -1,46 +1,41 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
 import { Link } from 'react-router-dom'
 import Navbar from '../../Components/Navbar'
 import api from '../../api/api';
 
-
 const Profile = () => {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [user, setUser] = useState(null);
+  const [userImage, setUserImage] = useState(null); // Store user image
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await api.get('/users/get-current-user', { withCredentials: true }); 
-
-        // const response = await axios.get(
-        //   "http://localhost:5000/api/users/get-current-user",
-        //   { withCredentials: true }
-        // )
+        const response = await api.get('/users/get-current-user', { withCredentials: true });
 
         if (response.data.success) {
-          setUser(response.data.user)
+          setUser(response.data.user);
+          setUserImage(response.data.user.imageUrl); // Assuming the user object contains imageUrl
         } else {
-          setError("Failed to load profile data")
+          setError("Failed to load profile data");
         }
       } catch (err) {
-        setError(err.response?.data?.message || "Error loading profile")
+        setError(err.response?.data?.message || "Error loading profile");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchUserData()
-  }, [])
+    fetchUserData();
+  }, []);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">
         Loading profile...
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -50,7 +45,7 @@ const Profile = () => {
           {error}
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -65,10 +60,12 @@ const Profile = () => {
                 <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-purple-500">
                   {user?.fullname}
                 </h1>
-                <p className="text-gray-400 mt-2">Member since {new Date(user?.createdAt).toLocaleDateString()}</p>
+                <p className="text-gray-400 mt-2">
+                  Member since {new Date(user?.createdAt).toLocaleDateString()}
+                </p>
               </div>
               <Link
-                to="/profile/edit"
+                to="/user-profile/edit" // Corrected route path
                 className="mt-4 md:mt-0 px-6 py-2 bg-cyan-600 hover:bg-cyan-700 rounded-lg transition-colors duration-200"
               >
                 Edit Profile
@@ -89,22 +86,23 @@ const Profile = () => {
                 </div>
               </div>
 
-              {/* Profile picture section */}
+              {/* Profile Picture Section */}
               <div className="bg-gray-700 p-6 rounded-xl">
                 <h2 className="text-xl font-semibold mb-4 text-cyan-300">Profile Picture</h2>
-                <div className="flex justify-center">
-                  <img 
-                    src="" 
-                    alt="" 
+                <div className="flex flex-col items-center">
+                  <img
+                    src="#"
+                    alt=""
                   />
                 </div>
               </div>
             </div>
+
           </div>
         </div>
       </div>
     </>
-  )
+  );
 }
 
-export default Profile
+export default Profile;

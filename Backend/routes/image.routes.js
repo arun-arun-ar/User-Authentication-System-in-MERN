@@ -1,11 +1,12 @@
 import { Router } from 'express';
-import { uploadImage } from '../controller/userimage.controller.js';
+import { uploadImage, getUserImage } from '../controller/userimage.controller.js';
 import { upload } from '../middlewares/multer.middleware.js';
 import verifyJWT from '../middlewares/auth.middleware.js';
 import multer from 'multer';
 
 const router = Router();
 
+// Handle Multer errors
 const handleMulterError = (err, req, res, next) => {
     if (err) {
         if (err instanceof multer.MulterError) {
@@ -21,10 +22,11 @@ const handleMulterError = (err, req, res, next) => {
     next();
 };
 
+// Route to upload an image
 router.post('/upload', 
     verifyJWT,
     (req, res, next) => {
-        // Check content type first
+        // Ensure request contains multipart/form-data
         if (!req.is('multipart/form-data')) {
             return res.status(400).json({ 
                 error: 'Invalid content type. Use multipart/form-data' 
@@ -38,7 +40,7 @@ router.post('/upload',
                 return handleMulterError(err, req, res, next);
             }
             
-            // Additional check if file exists after processing
+            // Ensure file is uploaded
             if (!req.file) {
                 return res.status(400).json({ 
                     error: 'No file uploaded. Please select an image file' 
@@ -49,5 +51,8 @@ router.post('/upload',
     },
     uploadImage
 );
+
+// Route to get user images
+router.get('/user-images', verifyJWT, getUserImage);
 
 export default router;
