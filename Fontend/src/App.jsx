@@ -7,6 +7,7 @@ import Login from './Pages/UserPages/Login'
 import UserDashboard from './Pages/UserPages/UserDashboard';
 import Profile from './Pages/UserPages/Profile';
 import Navbar from './Components/Navbar';
+import ChangePassword from './Pages/UserPages/ChangePassword';
 
 function App() {
 
@@ -20,6 +21,7 @@ function App() {
           <Route path='/login' element={<Login />} />
           <Route path='/user-dashboard' element={<UserDashboard />} />
           <Route path='/user-profile' element={<Profile />} />
+          <Route path='/change-user-password' element={<ChangePassword />} />
         </Routes>
       </Router>
 

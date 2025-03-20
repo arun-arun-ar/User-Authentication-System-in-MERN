@@ -47,7 +47,7 @@ const Profile = () => {
         const fullImageUrl = `${baseUrl}/public${response.data.image.path}`;
         setUserImage(fullImageUrl);
         setUploadStatus('Image uploaded successfully!');
-        
+
         // Clear the success message after 10 seconds
         setTimeout(() => {
           setUploadStatus('');
@@ -68,7 +68,7 @@ const Profile = () => {
 
         if (response.data.success) {
           setUser(response.data.user);
-          
+
           // Fetch user image using the correct endpoint
           console.log('Fetching user images...');
           const imageResponse = await api.get('/images/user-images', {
@@ -147,13 +147,21 @@ const Profile = () => {
               {/* Personal Information Section */}
               <div className="bg-gray-700 p-6 rounded-xl">
                 <h2 className="text-xl font-semibold mb-4 text-cyan-300">Personal Information</h2>
-                <div className="space-y-3">
+                <div className="space-y-3 p-2">
                   <p>
                     <span className="text-gray-400">Full Name:</span> {user?.fullname || 'N/A'}
                   </p>
                   <p>
                     <span className="text-gray-400">Email:</span> {user?.email || 'N/A'}
                   </p>
+                </div>
+                <div>
+                  <Link
+                    to="/change-user-password"
+                    className="mt-8 md:mt-0 px-6 py-2 bg-cyan-600 hover:bg-cyan-700 rounded-lg transition-colors duration-200 p-4"
+                  >
+                    Change Passwrod
+                  </Link>
                 </div>
               </div>
 
@@ -193,13 +201,12 @@ const Profile = () => {
                           />
                         </label>
                         {uploadStatus && (
-                          <p className={`mt-2 text-sm ${
-                            uploadStatus.includes('success') 
-                              ? 'text-green-400' 
+                          <p className={`mt-2 text-sm ${uploadStatus.includes('success')
+                              ? 'text-green-400'
                               : uploadStatus === 'Uploading...'
-                              ? 'text-cyan-400'
-                              : 'text-red-400'
-                          }`}>
+                                ? 'text-cyan-400'
+                                : 'text-red-400'
+                            }`}>
                             {uploadStatus}
                           </p>
                         )}
