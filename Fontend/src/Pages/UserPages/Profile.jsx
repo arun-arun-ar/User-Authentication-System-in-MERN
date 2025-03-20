@@ -48,10 +48,10 @@ const Profile = () => {
         setUserImage(fullImageUrl);
         setUploadStatus('Image uploaded successfully!');
         
-        // Clear the success message after 3 seconds
+        // Clear the success message after 10 seconds
         setTimeout(() => {
           setUploadStatus('');
-        }, 3000);
+        }, 10000);
       }
     } catch (err) {
       setUploadStatus(err.response?.data?.message || 'Error uploading image');

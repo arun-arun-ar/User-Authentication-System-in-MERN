@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaHome, FaUser, FaInfoCircle, FaEnvelope, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa';
+import api from '../api/api';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const navLinks = [
     { to: "/user-dashboard", text: "Dashboard", icon: <FaHome /> },
@@ -12,11 +14,22 @@ const Navbar = () => {
     { to: "/contact", text: "Contact", icon: <FaEnvelope /> },
   ];
 
+  const handleLogout = async () => {
+    try {
+      await api.post('/users/logout', {}, { withCredentials: true });
+
+      localStorage.removeItem('userToken');
+
+      navigate('/login');
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  };
+
   return (
     <nav className="bg-slate-800 shadow-lg fixed w-full z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          {/* Left section - Logo and desktop menu */}
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center">
               <span className="text-2xl font-bold text-white">Logo</span>
@@ -35,16 +48,15 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Right section - Logout and mobile menu button */}
           <div className="flex items-center">
             <div className="hidden md:flex">
-              <Link
-                to="/logout"
+              <button
+                onClick={handleLogout}
                 className="flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors duration-200"
               >
                 <FaSignOutAlt className="mr-2" />
                 Logout
-              </Link>
+              </button>
             </div>
 
             {/* Mobile menu button */}
@@ -82,16 +94,18 @@ const Navbar = () => {
                 </div>
               </Link>
             ))}
-            <Link
-              to="/logout"
-              onClick={() => setIsMobileMenuOpen(false)}
+            <button
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                handleLogout();
+              }}
               className="block px-3 py-2 rounded-md text-base font-medium text-white bg-red-600 hover:bg-red-700"
             >
               <div className="flex items-center">
                 <FaSignOutAlt className="mr-2" />
                 Logout
               </div>
-            </Link>
+            </button>
           </div>
         </div>
       )}
