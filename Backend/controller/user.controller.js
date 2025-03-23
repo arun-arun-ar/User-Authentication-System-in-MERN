@@ -1,5 +1,6 @@
 import User from "../models/user.model.js";
-import jwt from "jsonwebtoken"
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 //function to generate both access and refresh token
 const generateAccessAndRefereshTokens = async function (userId) {
@@ -74,48 +75,45 @@ const registerUser = async (req, res) => {
 
 //user login
 const userLogin = async (req, res) => {
-    // Getting email and password from user request body
     const { email, password } = req.body;
 
-    // Check if email and password are provided
     if (!email || !password) {
         return res.status(400).json({ success: false, message: "Email and Password are required" });
     }
 
-    // Find user by email in the database
     const user = await User.findOne({ email });
 
-    // Check if the user exists
     if (!user) {
         return res.status(404).json({ success: false, message: "User doesn't exist" });
     }
 
-    // Validate user password using a helper function
+    console.log("Plain Password:", password);
+    console.log("Hashed Password:", user.password);
+
     const isPasswordValid = await user.isPasswordCorrect(password);
 
-    // If the password is incorrect, return an error response
     if (!isPasswordValid) {
+        console.log("Password validation failed.");
         return res.status(401).json({ success: false, message: "Invalid password" });
     }
 
-    // Generate access and refresh tokens for the authenticated user
+    console.log("Password validation succeeded.");
+
     const { refreshToken, accessToken } = await generateAccessAndRefereshTokens(user._id);
 
-    // Fetch user data excluding sensitive information like password and tokens
+    user.refreshToken = refreshToken;
+    await user.save({ validateBeforeSave: false });
+
     const loginUser = await User.findById(user._id).select("-password -refreshToken");
 
-    // Cookie options for security
     const options = {
-        httpOnly: true, // Prevents JavaScript access to cookies (protection against XSS attacks)
-        secure: process.env.NODE_ENV === 'production' // Ensures cookies are sent only over HTTPS in production
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production'
     };
 
-    // Log the tokens and options
     console.log("Access Token:", accessToken);
     console.log("Refresh Token:", refreshToken);
-    console.log("Cookie Options:", options);
 
-    // Set cookies for authentication tokens and send success response
     return res.status(200)
         .cookie("accessToken", accessToken, options)
         .cookie("refreshToken", refreshToken, options)
@@ -209,33 +207,66 @@ const refreshAccessToken = async (req, res) => {
 
 
 // change password
+
 const changePassword = async (req, res) => {
-    const { oldPassword, newPassword } = req.body;
-
     try {
-        // Find the user by ID
-        const user = await User.findById(req.user?._id);
+        if (!req.user || !req.user._id) {
+            return res.status(401).json({ success: false, message: "Unauthorized: User not found" });
+        }
 
+        const { oldPassword, newPassword } = req.body;
 
-        // Check if the old password is correct
+        // Validate new password
+        if (!newPassword || typeof newPassword !== "string" || newPassword.trim() === "") {
+            return res.status(400).json({ success: false, message: "New password is required and must be valid" });
+        }
+
+        // Find the user
+        const user = await User.findById(req.user._id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        // Check old password
         const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
-
         if (!isPasswordCorrect) {
             return res.status(400).json({ success: false, message: "Incorrect previous password" });
         }
 
-        // Update the password
+        // Update the password (let the pre-save middleware handle hashing)
         user.password = newPassword;
 
-        // Save the new password
+        // Generate new tokens
+        const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(user._id);
+
+        // Save updated user with the new refresh token
+        user.refreshToken = refreshToken;
         await user.save({ validateBeforeSave: false });
 
-        return res.status(200).json({ success: true, message: "Password reset successfully" });
+        console.log("Password updated successfully.");
+
+        // Set cookies for the new tokens
+        const options = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production'
+        };
+
+        // Return the new tokens and success message
+        return res.status(200)
+            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", refreshToken, options)
+            .json({
+                success: true,
+                message: "Password reset successfully. You are still logged in.",
+                accessToken,
+                refreshToken
+            });
     } catch (error) {
         console.error("Error changing password:", error.message);
         return res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
+
 
 
 

@@ -70,11 +70,9 @@ const Profile = () => {
           setUser(response.data.user);
 
           // Fetch user image using the correct endpoint
-          console.log('Fetching user images...');
           const imageResponse = await api.get('/images/user-images', {
             withCredentials: true,
           });
-          console.log('Image Response:', imageResponse.data);
 
           if (imageResponse.data.success && imageResponse.data.image.length > 0) {
             // Get the first image from the array and construct the full URL
