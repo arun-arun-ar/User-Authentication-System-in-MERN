@@ -150,7 +150,7 @@ const Profile = () => {
                     <span className="text-gray-400">Email:</span> {user?.email || 'N/A'}
                   </p>
                 </div>
-                <div>
+                <div className='flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 py-4'>
                   <Link
                     to="/change-user-password"
                     className="mt-8 md:mt-0 px-6 py-2 bg-cyan-600 hover:bg-cyan-700 rounded-lg transition-colors duration-200 p-4"
@@ -199,10 +199,10 @@ const Profile = () => {
                         </label>
                         {uploadStatus && (
                           <p className={`mt-2 text-sm ${uploadStatus.includes('success')
-                              ? 'text-green-400'
-                              : uploadStatus === 'Uploading...'
-                                ? 'text-cyan-400'
-                                : 'text-red-400'
+                            ? 'text-green-400'
+                            : uploadStatus === 'Uploading...'
+                              ? 'text-cyan-400'
+                              : 'text-red-400'
                             }`}>
                             {uploadStatus}
                           </p>
@@ -210,6 +210,15 @@ const Profile = () => {
                       </div>
                     </>
                   )}
+                </div >
+
+                <div className='flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4 py-4'>
+                  <Link
+                    to="/change-user-image"
+                    className="mt-8 md:mt-0 px-6 py-2 bg-cyan-600 hover:bg-cyan-700 rounded-lg transition-colors duration-200 p-4"
+                  >
+                    Change Profile Picture
+                  </Link>
                 </div>
               </div>
             </div>

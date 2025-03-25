@@ -77,4 +77,66 @@ const getUserImage = async (req, res) => {
     }
 };
 
-export { uploadImage, getUserImage };
+// Update user image function
+const updateUserImage = async (req, res) => {
+    try {
+        console.log('Update request received');
+        console.log('Request headers:', req.headers);
+        console.log('Request file:', req.file);
+        console.log('Request user:', req.user);
+        console.log('Request body:', req.body);
+
+        const { imageId } = req.params;
+
+        // Check if file is uploaded
+        if (!req.file) {
+            console.log('No file found in request');
+            return res.status(400).json({
+                success: false,
+                message: 'No file uploaded'
+            });
+        }
+
+        console.log('File details:', {
+            filename: req.file.filename,
+            mimetype: req.file.mimetype,
+            size: req.file.size
+        });
+
+        // Find and update the image in the database
+        const updatedImage = await Image.findOneAndUpdate(
+            { _id: imageId, user: req.user._id },
+            { imagePath: `/images/${req.file.filename}` },
+            { new: true }
+        );
+
+        if (!updatedImage) {
+            console.log('Image not found or user unauthorized');
+            return res.status(404).json({
+                success: false,
+                message: 'Image not found or unauthorized'
+            });
+        }
+
+        console.log('Image updated in database:', updatedImage);
+
+        res.status(200).json({
+            success: true,
+            message: 'Image updated successfully',
+            image: {
+                id: updatedImage._id,
+                path: updatedImage.imagePath,
+                updatedAt: updatedImage.updatedAt
+            }
+        });
+    } catch (error) {
+        console.error('Image update error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Internal server error',
+            message: error.message
+        });
+    }
+};
+
+export { uploadImage, getUserImage, updateUserImage };

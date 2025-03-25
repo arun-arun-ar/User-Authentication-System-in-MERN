@@ -8,6 +8,7 @@ import UserDashboard from './Pages/UserPages/UserDashboard';
 import Profile from './Pages/UserPages/Profile';
 import ChangePassword from './Pages/UserPages/ChangePassword';
 import EditProfile from './Pages/UserPages/EditProfile';
+import UpdateProfileImage from './Pages/UserPages/UpdateProfileImage';
 
 function App() {
 
@@ -22,6 +23,7 @@ function App() {
           <Route path='/user-profile' element={<Profile />} />
           <Route path='/change-user-password' element={<ChangePassword />} />
           <Route path='/change-user-details' element={<EditProfile />} />
+          <Route path='/change-user-image' element={<UpdateProfileImage />} />
         </Routes>
       </Router>
 
