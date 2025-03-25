@@ -6,15 +6,14 @@ import Register from './Pages/UserPages/Register'
 import Login from './Pages/UserPages/Login'
 import UserDashboard from './Pages/UserPages/UserDashboard';
 import Profile from './Pages/UserPages/Profile';
-import Navbar from './Components/Navbar';
 import ChangePassword from './Pages/UserPages/ChangePassword';
+import EditProfile from './Pages/UserPages/EditProfile';
 
 function App() {
 
   return (
     <>
       <Router>
-        {/* <Navbar /> */}
         <Routes>
           <Route path='/' element={<Home />} />
           <Route path='/register' element={<Register />} />
@@ -22,6 +21,7 @@ function App() {
           <Route path='/user-dashboard' element={<UserDashboard />} />
           <Route path='/user-profile' element={<Profile />} />
           <Route path='/change-user-password' element={<ChangePassword />} />
+          <Route path='/change-user-details' element={<EditProfile />} />
         </Routes>
       </Router>
 

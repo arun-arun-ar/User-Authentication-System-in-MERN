@@ -10,6 +10,7 @@ const Profile = () => {
   const [error, setError] = useState(null);
   const [uploadStatus, setUploadStatus] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(''); // New state for success message
 
   const handleImageUpload = async (event) => {
     try {
@@ -47,10 +48,12 @@ const Profile = () => {
         const fullImageUrl = `${baseUrl}/public${response.data.image.path}`;
         setUserImage(fullImageUrl);
         setUploadStatus('Image uploaded successfully!');
+        setSuccessMessage('Profile picture uploaded successfully!'); // Set success message
 
-        // Clear the success message after 10 seconds
+        // Clear both messages after 10 seconds
         setTimeout(() => {
           setUploadStatus('');
+          setSuccessMessage('');
         }, 10000);
       }
     } catch (err) {
@@ -75,16 +78,10 @@ const Profile = () => {
           });
 
           if (imageResponse.data.success && imageResponse.data.image.length > 0) {
-            // Get the first image from the array and construct the full URL
             const imagePath = imageResponse.data.image[0].path;
-            console.log('Image Path:', imagePath);
-            // Remove /api from the base URL since the public directory is served at the root
             const baseUrl = api.defaults.baseURL.replace('/api', '');
             const fullImageUrl = `${baseUrl}/public${imagePath}`;
-            console.log('Full Image URL:', fullImageUrl);
             setUserImage(fullImageUrl);
-          } else {
-            console.log('No images found or request unsuccessful');
           }
         } else {
           setError("Failed to load profile data");
@@ -134,7 +131,7 @@ const Profile = () => {
                 </p>
               </div>
               <Link
-                to="/user-profile/edit" // Corrected route path
+                to="/change-user-details"
                 className="mt-4 md:mt-0 px-6 py-2 bg-cyan-600 hover:bg-cyan-700 rounded-lg transition-colors duration-200"
               >
                 Edit Profile
@@ -158,7 +155,7 @@ const Profile = () => {
                     to="/change-user-password"
                     className="mt-8 md:mt-0 px-6 py-2 bg-cyan-600 hover:bg-cyan-700 rounded-lg transition-colors duration-200 p-4"
                   >
-                    Change Passwrod
+                    Change Password
                   </Link>
                 </div>
               </div>
@@ -174,7 +171,9 @@ const Profile = () => {
                         alt="Profile"
                         className="w-40 h-40 rounded-xl object-cover"
                       />
-                      <p className="text-sm text-gray-400">Profile picture uploaded successfully</p>
+                      {successMessage && (
+                        <p className="text-sm text-green-400">{successMessage}</p>
+                      )}
                     </>
                   ) : (
                     <>
@@ -221,4 +220,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default Profile;                                                                                                  
